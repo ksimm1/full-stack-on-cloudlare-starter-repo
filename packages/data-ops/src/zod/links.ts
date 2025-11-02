@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { LinkClickMessageType } from "./queue";
+import { getDb } from "@/db/database";
+import { linkClicks } from "@/drizzle-out/schema";
 
 export const destinationsSchema = z.preprocess(
   (obj) => {
@@ -63,3 +66,16 @@ export type CloudflareInfoSchemaType = z.infer<typeof cloudflareInfoSchema>;
 
 export type LinkSchemaType = z.infer<typeof linkSchema>;
 export type CreateLinkSchemaType = z.infer<typeof createLinkSchema>;
+
+export async function addLinkClick(info: LinkClickMessageType["data"]) {
+  const db = getDb();
+  await db.insert(linkClicks).values({
+    id: info.id,
+    accountId: info.accountId,
+    destination: info.destination,
+    country: info.country,
+    clickedTime: info.timestamp,
+    latitude: info.latitude,
+    longitude: info.longitude,
+  });
+}
